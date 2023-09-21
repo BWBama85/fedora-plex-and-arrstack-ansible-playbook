@@ -1,12 +1,12 @@
 # Fedora Media Server Setup via Ansible
 
-This is an Ansible playbook to setup a Fedora 38 server as a media server. It is based on the [Fedora 38 Server](https://getfedora.org/en/server/download/) installation. This is opinionated and will need some adjusting based on your use case until I can spend more time making it more flexible. This should give you a good starting point though.
+This is an Ansible playbook to setup a Fedora 38 server as a media server. The playbook can install Plex, Sonarr, Radarr, Prowlarr, Lidarr, Whisparr, Readarr, and qBittorrent-nox. It will also setup a systemd service for each application and configure firewalld to allow access to the applications.
 
 ## Requirements
-- Fedora 38 Server
+- Fedora Server
 - Ansible
-- SSH access to the server with a user with sudo privileges and a public key with no password
-- make installed on ansible machine
+- SSH access to the server with a user with sudo privileges and a SSH key
+- make installed on ansible machine where playbook will be run
 
 ## Features
 - Plex Media Server
