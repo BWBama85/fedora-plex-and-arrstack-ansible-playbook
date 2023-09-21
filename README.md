@@ -21,7 +21,18 @@ This is an Ansible playbook to setup a Fedora 38 server as a media server. It is
 ## Assumptions
 This script currently assumes you will be storing all your media files and torrents on a NAS and using SMB to connect to that NAS. I also have a backup folder on my nas.
 
+## Usage
 To run the playbook, run the following command:
 ```make media```
 
 Adjust the variables in the `host_vars/media/vars.yml` and `hosts.yml` to your needs.
+
+### Ports
+- Prowlarr: 9696
+- Sonarr: 8989
+- Radarr: 7878
+- Lidarr: 8686
+- Whisparr: 6969
+- Readarr: 8787
+- Plex: 32400
+- qBittorrent: 8080
