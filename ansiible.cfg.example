@@ -3,4 +3,4 @@ remote_tmp=/tmp/
 
 [ssh_connection]
 pipelining=True
-private_key_file = /home/user/.ssh/private_key_file
+private_key_file = {{ private_key_file }}
