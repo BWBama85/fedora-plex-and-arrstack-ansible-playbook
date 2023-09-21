@@ -8,7 +8,20 @@ This is an Ansible playbook to setup a Fedora 38 server as a media server. It is
 - SSH access to the server with a user with sudo privileges and a public key with no password
 - make installed on ansible machine
 
+## Features
+- Plex Media Server
+- Sonarr
+- Radarr
+- Prowlarr
+- Lidarr
+- Whisparr
+- Readarr
+- qBittorrent-nox
+
+## Assumptions
+This script currently assumes you will be storing all your media files and torrents on a NAS and using SMB to connect to that NAS. I also have a backup folder on my nas.
+
 To run the playbook, run the following command:
 ```make media```
 
-Adjust the variables in the `host_vars/media/vars.yml` file to your needs.
+Adjust the variables in the `host_vars/media/vars.yml` and `hosts.yml` to your needs.
