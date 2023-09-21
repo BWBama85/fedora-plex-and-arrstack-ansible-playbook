@@ -1,0 +1,9 @@
+---
+ansible_become_pass: your_password
+plex_repo_name: plex-media-server
+plex_repo_description: Repo for Plex Media Server
+plex_repo_baseurl: https://downloads.plex.tv/repo/rpm/$basearch/
+plex_repo_gpgkey: https://downloads.plex.tv/plex-keys/PlexSign.key
+smb_username: your_username
+smb_password: your_password
+group: your_group

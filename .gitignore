@@ -1,0 +1,4 @@
+hosts.yml
+ansible.cfg
+*.log
+.vscode

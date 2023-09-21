@@ -1,0 +1,144 @@
+- name: Set The Hostname
+  become: true
+  ansible.builtin.hostname:
+    name: media
+    use: systemd
+
+- name: Update All Packages
+  become: true
+  when: ansible_distribution == "Fedora"
+  ansible.builtin.dnf:
+    name: "*"
+    state: latest
+    update_only: true
+    update_cache: true
+
+- name: Create SMB directories
+  become: true
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0775"
+  loop:
+    - /mnt/media/
+    - /mnt/media/plex
+    - /mnt/media/torrents
+    - /mnt/media/backup
+
+- name: Mount Plex SMB volume
+  become: true
+  ansible.posix.mount:
+    src: //192.168.1.111/plex
+    path: /mnt/media/plex
+    opts: "uid=1000,gid=1000,username={{ smb_username }},password={{ smb_password }},rw,sec=ntlmssp,dir_mode=0775,file_mode=0664"
+    fstype: cifs
+    state: mounted
+
+- name: Mount Torrent SMB volume
+  become: true
+  ansible.posix.mount:
+    src: //192.168.1.111/torrents
+    path: /mnt/media/torrents
+    opts: "uid=1000,gid=1000,username={{ smb_username }},password={{ smb_password }},rw,sec=ntlmssp,dir_mode=0775,file_mode=0664"
+    fstype: cifs
+    state: mounted
+
+- name: Mount Backup SMB volume
+  become: true
+  ansible.posix.mount:
+    src: //192.168.1.111/backup
+    path: /mnt/media/backup
+    opts: "uid=1000,gid=1000,username={{ smb_username }},password={{ smb_password }},rw,sec=ntlmssp,dir_mode=0775,file_mode=0664"
+    fstype: cifs
+    state: mounted
+
+- name: Put SELinux in permissive mode, logging actions that would be blocked.
+  become: true
+  ansible.posix.selinux:
+    policy: targeted
+    state: permissive
+
+- name: Add Plex Repo
+  become: true
+  ansible.builtin.yum_repository:
+    name: "{{ plex_repo_name }}"
+    description: "{{ plex_repo_description }}"
+    baseurl: "{{ plex_repo_baseurl }}"
+    gpgcheck: true
+    gpgkey: "{{ plex_repo_gpgkey }}"
+    enabled: true
+
+- name: Install needed packages
+  become: true
+  ansible.builtin.dnf:
+    name:
+      - plexmediaserver
+      - qemu-guest-agent
+      - qbittorrent-nox
+    update_cache: true
+    state: present
+
+- name: Ensure group exists
+  become: true
+  ansible.builtin.group:
+    name: "{{ group }}"
+    state: present
+
+- name: Add the user 'qbittorrent-nox' with a primary group
+  become: true
+  ansible.builtin.user:
+    name: qbittorrent-nox
+    group: "{{ group }}"
+
+- name: Install Lidarr
+  become: true
+  ansible.builtin.script: ./scripts/arrstack-install.sh lidarr lidarr "{{ group }}"
+  args:
+    creates: /opt/Lidarr/Lidarr
+
+- name: Install Prowalarr
+  become: true
+  ansible.builtin.script: ./scripts/arrstack-install.sh prowlarr prowlarr "{{ group }}"
+  args:
+    creates: /opt/Prowlarr/Prowlarr
+
+- name: Install Radarr
+  become: true
+  ansible.builtin.script: ./scripts/arrstack-install.sh radarr radarr "{{ group }}"
+  args:
+    creates: /opt/Radarr/Radarr
+
+- name: Install Sonarr
+  become: true
+  ansible.builtin.script: ./scripts/arrstack-install.sh sonarr sonarr "{{ group }}"
+  args:
+    creates: /opt/Sonarr/Sonarr
+
+- name: Add service file
+  become: true
+  ansible.builtin.template:
+    src: ./templates/qbittorrent-nox.service.j2
+    dest: /etc/systemd/system/qbittorrent-nox.service
+    owner: root
+    group: root
+    mode: "0644"
+    force: false
+
+- name: Force systemd to reread configs
+  become: true
+  ansible.builtin.systemd:
+    name: qbittorrent-nox
+    enabled: true
+    daemon_reload: true
+    state: started
+
+- name: Permit qbittorrent and plex traffic
+  become: true
+  ansible.posix.firewalld:
+    port: "{{ item }}"
+    permanent: true
+    state: enabled
+    immediate: true
+  loop:
+    - 8080/tcp
+    - 32400/tcp
