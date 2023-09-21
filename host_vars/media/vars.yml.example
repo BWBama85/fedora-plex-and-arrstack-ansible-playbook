@@ -7,3 +7,4 @@ plex_repo_gpgkey: https://downloads.plex.tv/plex-keys/PlexSign.key
 smb_username: your_username
 smb_password: your_password
 group: your_group
+private_key_file: /home/youruser/.ssh/nopass
